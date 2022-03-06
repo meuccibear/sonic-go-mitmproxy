@@ -1,4 +1,5 @@
-# go-mitmproxy
+# sonic-go-mitmproxy
+Notice: This repo was fork from [go-mitmproxy](https://github.com/lqqyt2423/go-mitmproxy) ,Thank you! @lqqyt2423 
 
 [简体中文](./README_CN.md)
 
