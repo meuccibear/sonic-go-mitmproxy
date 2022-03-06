@@ -1,4 +1,5 @@
-# go-mitmproxy
+# sonic-go-mitmproxy
+注意！: 这个仓库是从 [go-mitmproxy](https://github.com/lqqyt2423/go-mitmproxy) fork的，感谢@lqqyt2423
 
 [English](./README.md)
 
