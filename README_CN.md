@@ -30,8 +30,6 @@
 
 ## 特点
 
-- HTTPS 证书相关逻辑参考 [mitmproxy](https://mitmproxy.org/) 且与之兼容，根证书也保存在 `~/.mitmproxy` 文件夹中，如果之前用过 `mitmproxy`
-  且根证书已经安装信任，则此 `go-mitmproxy` 可以直接使用
 - 支持插件机制，很方便扩展自己需要的功能，可参考 [addon/addon.go](./addon/addon.go)
 - 性能优势
     - Golang 天生的性能优势
