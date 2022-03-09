@@ -108,16 +108,16 @@ func getStorePath(path string) (string, error) {
 
 // The certificate and the private key in PEM format.
 func (ca *CA) caFile() string {
-	return filepath.Join(ca.StorePath, "mitmproxy-ca.pem")
+	return filepath.Join(ca.StorePath, "sonic-go-mitmproxy-ca.pem")
 }
 
 // The certificate in PEM format.
 func (ca *CA) caCertFile() string {
-	return filepath.Join(ca.StorePath, "mitmproxy-ca-cert.pem")
+	return filepath.Join(ca.StorePath, "sonic-go-mitmproxy-ca-cert.pem")
 }
 
 func (ca *CA) caCertCerFile() string {
-	return filepath.Join(ca.StorePath, "mitmproxy-ca-cert.cer")
+	return filepath.Join(ca.StorePath, "sonic-go-mitmproxy-ca-cert.cer")
 }
 
 func (ca *CA) load() error {

@@ -72,11 +72,11 @@ func main() {
 	}
 
 	if config.version {
-		fmt.Println("go-mitmproxy: " + p.Version)
+		fmt.Println("sonic-go-mitmproxy: " + p.Version)
 		os.Exit(0)
 	}
 
-	log.Infof("go-mitmproxy version %v\n", p.Version)
+	log.Infof("sonic-go-mitmproxy version %v\n", p.Version)
 
 	p.AddAddon(&addon.Log{})
 	p.AddAddon(web.NewWebAddon(config.webAddr))
