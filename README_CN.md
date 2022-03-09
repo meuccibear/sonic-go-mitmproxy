@@ -51,7 +51,7 @@ sonic-go-mitmproxy
 
 启动后，HTTP 代理地址默认为 9080 端口，Web 界面默认在 9081 端口。
 
-首次启动后需按照证书以解析 HTTPS 流量，证书会在首次启动命令后自动生成，路径为 `~/.mitmproxy/mitmproxy-ca-cert.pem`
+首次启动后需按照证书以解析 HTTPS 流量，证书会在首次启动命令后自动生成，路径为 `~/.mitmproxy/sonic-go-mitmproxy-ca-cert.pem`
 。可参考此链接安装：[About Certificates](https://docs.mitmproxy.org/stable/concepts-certificates/)。
 
 ### 自定义参数
