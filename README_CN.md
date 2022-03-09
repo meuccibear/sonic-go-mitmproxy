@@ -11,6 +11,23 @@
 
 本仓库从 [go-mitmproxy](https://github.com/lqqyt2423/go-mitmproxy) Fork，我们将基于此进行优化与定制，也会给原仓库提供我们的优化pr。
 
+### 官方网站
+[Sonic Official Website](http://sonic-cloud.gitee.io)
+## 背景
+
+#### 什么是Sonic？
+
+> 如今，自动化测试、远程控制等技术已经逐渐成熟。其中 [Appium](https://github.com/appium/appium) 在自动化领域可以说是领头者，[STF](https://github.com/openstf/stf) 则是远程控制的始祖。很久前就开始有了一个想法，是否可以在一个平台上，提供解决所有客户端（Android、iOS、Windows、Mac、Web应用）的测试方案，于是，Sonic云真机测试平台由此诞生。
+
+#### 愿景
+
+> Sonic当前的愿景是能帮助中小型企业解决在客户端自动化或远控方面缺少工具和测试手段的问题。
+>
+>  如果你想参与其中，欢迎加入！💪
+>
+> 如果你想支持，可以给我一个star。⭐
+
+
 ## 特点
 
 - HTTPS 证书相关逻辑参考 [mitmproxy](https://mitmproxy.org/) 且与之兼容，根证书也保存在 `~/.mitmproxy` 文件夹中，如果之前用过 `mitmproxy`

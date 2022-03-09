@@ -12,6 +12,23 @@
 This repo was fork from [go-mitmproxy](https://github.com/lqqyt2423/go-mitmproxy).
 We will optimize and customize based on this, and we will also provide our pr to the original repo.
 
+### Official Website
+[Sonic Official Website](http://sonic-cloud.gitee.io)
+## Background
+
+#### What is sonic ?
+
+> Nowadays, automatic testing, remote control and other technologies have gradually matured. [Appium](https://github.com/appium/appium) can be said to be the leader in the field of automation, and [STF](https://github.com/openstf/stf) is the ancestor of remote control. A long time ago, I began to have an idea about whether to provide test solutions for all clients (Android, IOS, windows, MAC and web applications) on one platform. Therefore, sonic cloud real machine testing platform was born.
+
+#### Vision
+
+> Sonic's vision is to help small and medium-sized enterprises solve the problem of lack of tools and testing means in client automation or remote control.
+>
+>If you want to participate, welcome to join! 💪
+>
+>If you want to support, you can give me a star. ⭐
+
+
 ## Features
 
 - Intercept HTTP & HTTPS requests and responses and modify them on the fly
