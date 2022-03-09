@@ -1,9 +1,16 @@
-# sonic-go-mitmproxy
-Notice: This repo was fork from [go-mitmproxy](https://github.com/lqqyt2423/go-mitmproxy) ,Thank you! @lqqyt2423 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/SonicCloudOrg/sonic-server/main/logo.png">
+</p>
+<p align="center">🎉Proxy Plugin of Sonic cloud real machine testing platform</p>
+<p align="center">
+  <span>English |</span>
+  <a href="https://github.com/SonicCloudOrg/sonic-go-mitmproxy/blob/main/README_CN.md">  
+     简体中文
+  </a>
+</p>
 
-[简体中文](./README_CN.md)
-
-[Mitmproxy](https://mitmproxy.org/) implemented with golang. Intercept HTTP & HTTPS requests and responses and modify them.
+This repo was fork from [go-mitmproxy](https://github.com/lqqyt2423/go-mitmproxy).
+We will optimize and customize based on this, and we will also provide our pr to the original repo.
 
 ## Features
 
@@ -19,18 +26,12 @@ Notice: This repo was fork from [go-mitmproxy](https://github.com/lqqyt2423/go-m
 - Support streaming when uploading/downloading large files
 - Web interface
 
-## Install
-
-```
-GO111MODULE=on go get -u github.com/lqqyt2423/go-mitmproxy/cmd/go-mitmproxy
-```
-
 ## Usage
 
 ### Startup
 
 ```
-go-mitmproxy
+sonic-go-mitmproxy
 ```
 
 After startup, the HTTP proxy address defaults to port 9080, and the web interface defaults to port 9081.
@@ -40,7 +41,7 @@ After the first startup, the SSL/TLS certificate will be automatically generated
 ### Help
 
 ```
-Usage of go-mitmproxy:
+Usage of sonic-go-mitmproxy:
   -addr string
     	proxy listen addr (default ":9080")
   -dump string
