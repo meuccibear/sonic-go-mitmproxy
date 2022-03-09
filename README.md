@@ -33,7 +33,6 @@ We will optimize and customize based on this, and we will also provide our pr to
 
 - Intercept HTTP & HTTPS requests and responses and modify them on the fly
 - SSL/TLS certificates for interception are generated on the fly
-- Certificates logic compatible with [mitmproxy](https://mitmproxy.org/), saved at `~/.mitmproxy`. If you used mitmproxy before and installed certificates, then you can use this go-mitmproxy directly
 - Addon mechanism, you can add your functions easily, refer to [addon/addon.go](./addon/addon.go)
 - Performance advantages
   - Golang's inherent performance advantages
