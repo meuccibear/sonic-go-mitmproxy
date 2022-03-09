@@ -53,7 +53,7 @@ sonic-go-mitmproxy
 
 After startup, the HTTP proxy address defaults to port 9080, and the web interface defaults to port 9081.
 
-After the first startup, the SSL/TLS certificate will be automatically generated at `~/.mitmproxy/mitmproxy-ca-cert.pem`. You can refer to this link to install: [About Certificates](https://docs.mitmproxy.org/stable/concepts-certificates/).
+After the first startup, the SSL/TLS certificate will be automatically generated at `~/.mitmproxy/sonic-go-mitmproxy-ca-cert.pem`. You can refer to this link to install: [About Certificates](https://docs.mitmproxy.org/stable/concepts-certificates/).
 
 ### Help
 
