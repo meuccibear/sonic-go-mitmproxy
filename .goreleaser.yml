@@ -6,12 +6,12 @@ before:
 builds:
   - env:
       - CGO_ENABLED=0
-#    asmflags:
-#      - all=-trimpath=
-#    gcflags:
-#      - all=-trimpath=
-#    ldflags:
-#      - -s -w
+    asmflags:
+      - all=-trimpath=C:/Users/ZHOUYIXUN/Desktop/sonic-go-mitmproxy
+    gcflags:
+      - all=-trimpath=C:/Users/ZHOUYIXUN/Desktop/sonic-go-mitmproxy
+    ldflags:
+      - -s -w
     main: ./cmd/go-mitmproxy/main.go
     goos:
       - linux
