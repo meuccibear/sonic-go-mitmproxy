@@ -6,6 +6,12 @@ before:
 builds:
   - env:
       - CGO_ENABLED=0
+#    asmflags:
+#      - all=-trimpath=
+#    gcflags:
+#      - all=-trimpath=
+#    ldflags:
+#      - -s -w
     main: ./cmd/go-mitmproxy/main.go
     goos:
       - linux
