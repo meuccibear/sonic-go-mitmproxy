@@ -12,7 +12,7 @@
 本仓库从 [go-mitmproxy](https://github.com/lqqyt2423/go-mitmproxy) Fork，我们将基于此进行优化与定制，也会给原仓库提供我们的优化pr。
 
 ### 官方网站
-[Sonic Official Website](http://sonic-cloud.gitee.io)
+[Sonic Official Website](https://sonic-cloud.gitee.io)
 ## 背景
 
 #### 什么是Sonic？

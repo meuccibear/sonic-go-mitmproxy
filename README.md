@@ -13,7 +13,7 @@ This repo was fork from [go-mitmproxy](https://github.com/lqqyt2423/go-mitmproxy
 We will optimize and customize based on this, and we will also provide our pr to the original repo.
 
 ### Official Website
-[Sonic Official Website](http://sonic-cloud.gitee.io)
+[Sonic Official Website](https://sonic-cloud.gitee.io)
 ## Background
 
 #### What is sonic ?
