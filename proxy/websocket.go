@@ -6,29 +6,31 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // 当前仅做了转发 websocket 流量
 
-type WebSocket struct{}
+type webSocket struct{}
 
-var DefaultWebSocket WebSocket
+var defaultWebSocket webSocket
 
-func (s *WebSocket) WS(conn net.Conn, host string) {
-	log := log.WithField("in", "WebSocket.WS").WithField("host", host)
+func (s *webSocket) ws(conn net.Conn, host string) {
+	log := log.WithField("in", "webSocket.ws").WithField("host", host)
 
 	defer conn.Close()
 	remoteConn, err := net.Dial("tcp", host)
 	if err != nil {
-		LogErr(log, err)
+		logErr(log, err)
 		return
 	}
 	defer remoteConn.Close()
-	Transfer(log, conn, remoteConn)
+	transfer(log, conn, remoteConn)
 }
 
-func (s *WebSocket) WSS(res http.ResponseWriter, req *http.Request) {
-	log := log.WithField("in", "WebSocket.WSS").WithField("host", req.Host)
+func (s *webSocket) wss(res http.ResponseWriter, req *http.Request) {
+	log := log.WithField("in", "webSocket.wss").WithField("host", req.Host)
 
 	upgradeBuf, err := httputil.DumpRequest(req, false)
 	if err != nil {
@@ -61,5 +63,5 @@ func (s *WebSocket) WSS(res http.ResponseWriter, req *http.Request) {
 		log.Errorf("wss upgrade: %v\n", err)
 		return
 	}
-	Transfer(log, conn, cconn)
+	transfer(log, conn, cconn)
 }

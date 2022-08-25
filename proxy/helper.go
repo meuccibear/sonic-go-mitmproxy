@@ -3,14 +3,15 @@ package proxy
 import (
 	"bytes"
 	"io"
+	"net"
 	"os"
 	"strings"
 	"sync"
 
-	_log "github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
-var NormalErrMsgs []string = []string{
+var normalErrMsgs []string = []string{
 	"read: connection reset by peer",
 	"write: broken pipe",
 	"i/o timeout",
@@ -22,10 +23,10 @@ var NormalErrMsgs []string = []string{
 }
 
 // 仅打印预料之外的错误信息
-func LogErr(log *_log.Entry, err error) (loged bool) {
+func logErr(log *log.Entry, err error) (loged bool) {
 	msg := err.Error()
 
-	for _, str := range NormalErrMsgs {
+	for _, str := range normalErrMsgs {
 		if strings.Contains(msg, str) {
 			log.Debug(err)
 			return
@@ -38,32 +39,43 @@ func LogErr(log *_log.Entry, err error) (loged bool) {
 }
 
 // 转发流量
-// Read a => Write b
-// Read b => Write a
-func Transfer(log *_log.Entry, a, b io.ReadWriteCloser) {
+func transfer(log *log.Entry, server, client io.ReadWriteCloser) {
 	done := make(chan struct{})
 	defer close(done)
 
-	forward := func(dst io.WriteCloser, src io.Reader, ec chan<- error) {
-		_, err := io.Copy(dst, src)
+	errChan := make(chan error)
+	go func() {
+		_, err := io.Copy(server, client)
+		log.Debugln("client copy end", err)
+		client.Close()
+		select {
+		case <-done:
+			return
+		case errChan <- err:
+			return
+		}
+	}()
+	go func() {
+		_, err := io.Copy(client, server)
+		log.Debugln("server copy end", err)
+		server.Close()
 
-		dst.Close() // 当一端读结束时，结束另一端的写
+		if clientConn, ok := client.(*wrapClientConn); ok {
+			err := clientConn.Conn.(*net.TCPConn).CloseRead()
+			log.Debugln("clientConn.Conn.(*net.TCPConn).CloseRead()", err)
+		}
 
 		select {
 		case <-done:
 			return
-		case ec <- err:
+		case errChan <- err:
 			return
 		}
-	}
-
-	errChan := make(chan error)
-	go forward(a, b, errChan)
-	go forward(b, a, errChan)
+	}()
 
 	for i := 0; i < 2; i++ {
 		if err := <-errChan; err != nil {
-			LogErr(log, err)
+			logErr(log, err)
 			return // 如果有错误，直接返回
 		}
 	}
@@ -72,7 +84,7 @@ func Transfer(log *_log.Entry, a, b io.ReadWriteCloser) {
 // 尝试将 Reader 读取至 buffer 中
 // 如果未达到 limit，则成功读取进入 buffer
 // 否则 buffer 返回 nil，且返回新 Reader，状态为未读取前
-func ReaderToBuffer(r io.Reader, limit int64) ([]byte, io.Reader, error) {
+func readerToBuffer(r io.Reader, limit int64) ([]byte, io.Reader, error) {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	lr := io.LimitReader(r, limit)
 
@@ -95,7 +107,7 @@ func ReaderToBuffer(r io.Reader, limit int64) ([]byte, io.Reader, error) {
 var tlsKeyLogWriter io.Writer
 var tlsKeyLogOnce sync.Once
 
-func GetTlsKeyLogWriter() io.Writer {
+func getTlsKeyLogWriter() io.Writer {
 	tlsKeyLogOnce.Do(func() {
 		logfile := os.Getenv("SSLKEYLOGFILE")
 		if logfile == "" {
@@ -104,7 +116,7 @@ func GetTlsKeyLogWriter() io.Writer {
 
 		writer, err := os.OpenFile(logfile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
-			log.WithField("in", "GetTlsKeyLogWriter").Debug(err)
+			log.Debugf("getTlsKeyLogWriter OpenFile error: %v", err)
 			return
 		}
 

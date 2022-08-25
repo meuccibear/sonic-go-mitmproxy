@@ -21,16 +21,14 @@ import (
 
 	"github.com/golang/groupcache/lru"
 	"github.com/golang/groupcache/singleflight"
-	_log "github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
-
-var log = _log.WithField("at", "cert")
 
 // reference
 // https://docs.mitmproxy.org/stable/concepts-certificates/
 // https://github.com/mitmproxy/mitmproxy/blob/master/mitmproxy/certs.py
 
-var caErrNotFound = errors.New("ca not found")
+var errCaNotFound = errors.New("ca not found")
 
 type CA struct {
 	rsa.PrivateKey
@@ -43,6 +41,64 @@ type CA struct {
 	cacheMu sync.Mutex
 }
 
+func createCert() (*rsa.PrivateKey, *x509.Certificate, error) {
+	key, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	template := &x509.Certificate{
+		SerialNumber: big.NewInt(time.Now().UnixNano() / 100000),
+		Subject: pkix.Name{
+			CommonName:   "mitmproxy",
+			Organization: []string{"mitmproxy"},
+		},
+		NotBefore:             time.Now().Add(-time.Hour * 48),
+		NotAfter:              time.Now().Add(time.Hour * 24 * 365 * 3),
+		BasicConstraintsValid: true,
+		IsCA:                  true,
+		SignatureAlgorithm:    x509.SHA256WithRSA,
+		KeyUsage:              x509.KeyUsageCertSign | x509.KeyUsageCRLSign,
+		ExtKeyUsage: []x509.ExtKeyUsage{
+			x509.ExtKeyUsageServerAuth,
+			x509.ExtKeyUsageClientAuth,
+			x509.ExtKeyUsageEmailProtection,
+			x509.ExtKeyUsageTimeStamping,
+			x509.ExtKeyUsageCodeSigning,
+			x509.ExtKeyUsageMicrosoftCommercialCodeSigning,
+			x509.ExtKeyUsageMicrosoftServerGatedCrypto,
+			x509.ExtKeyUsageNetscapeServerGatedCrypto,
+		},
+	}
+
+	certBytes, err := x509.CreateCertificate(rand.Reader, template, template, &key.PublicKey, key)
+	if err != nil {
+		return nil, nil, err
+	}
+	cert, err := x509.ParseCertificate(certBytes)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return key, cert, nil
+}
+
+// Create new ca only live in memory, will change when process restart
+func NewCAMemory() (*CA, error) {
+	key, cert, err := createCert()
+	if err != nil {
+		return nil, err
+	}
+	return &CA{
+		PrivateKey: *key,
+		RootCert:   *cert,
+		StorePath:  "",
+		cache:      lru.New(100),
+		group:      new(singleflight.Group),
+	}, nil
+}
+
+// Load ca from store path or create new ca then store
 func NewCA(path string) (*CA, error) {
 	storePath, err := getStorePath(path)
 	if err != nil {
@@ -56,7 +112,7 @@ func NewCA(path string) (*CA, error) {
 	}
 
 	if err := ca.load(); err != nil {
-		if err != caErrNotFound {
+		if err != errCaNotFound {
 			return nil, err
 		}
 	} else {
@@ -126,7 +182,7 @@ func (ca *CA) load() error {
 	stat, err := os.Stat(caFile)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return caErrNotFound
+			return errCaNotFound
 		}
 		return err
 	}
@@ -180,44 +236,12 @@ func (ca *CA) load() error {
 }
 
 func (ca *CA) create() error {
-	key, err := rsa.GenerateKey(rand.Reader, 2048)
+	key, cert, err := createCert()
 	if err != nil {
 		return err
 	}
+
 	ca.PrivateKey = *key
-
-	template := &x509.Certificate{
-		SerialNumber: big.NewInt(time.Now().UnixNano() / 100000),
-		Subject: pkix.Name{
-			CommonName:   "mitmproxy",
-			Organization: []string{"mitmproxy"},
-		},
-		NotBefore:             time.Now().Add(-time.Hour * 48),
-		NotAfter:              time.Now().Add(time.Hour * 24 * 365 * 3),
-		BasicConstraintsValid: true,
-		IsCA:                  true,
-		SignatureAlgorithm:    x509.SHA256WithRSA,
-		KeyUsage:              x509.KeyUsageCertSign | x509.KeyUsageCRLSign,
-		ExtKeyUsage: []x509.ExtKeyUsage{
-			x509.ExtKeyUsageServerAuth,
-			x509.ExtKeyUsageClientAuth,
-			x509.ExtKeyUsageEmailProtection,
-			x509.ExtKeyUsageTimeStamping,
-			x509.ExtKeyUsageCodeSigning,
-			x509.ExtKeyUsageMicrosoftCommercialCodeSigning,
-			x509.ExtKeyUsageMicrosoftServerGatedCrypto,
-			x509.ExtKeyUsageNetscapeServerGatedCrypto,
-		},
-	}
-
-	certBytes, err := x509.CreateCertificate(rand.Reader, template, template, &key.PublicKey, key)
-	if err != nil {
-		return err
-	}
-	cert, err := x509.ParseCertificate(certBytes)
-	if err != nil {
-		return err
-	}
 	ca.RootCert = *cert
 
 	if err := ca.save(); err != nil {
@@ -279,7 +303,7 @@ func (ca *CA) GetCert(commonName string) (*tls.Certificate, error) {
 	ca.cacheMu.Lock()
 	if val, ok := ca.cache.Get(commonName); ok {
 		ca.cacheMu.Unlock()
-		log.WithField("commonName", commonName).Debug("GetCert")
+		log.Debugf("ca GetCert: %v", commonName)
 		return val.(*tls.Certificate), nil
 	}
 	ca.cacheMu.Unlock()
@@ -303,7 +327,7 @@ func (ca *CA) GetCert(commonName string) (*tls.Certificate, error) {
 
 // TODO: 是否应该支持多个 SubjectAltName
 func (ca *CA) DummyCert(commonName string) (*tls.Certificate, error) {
-	log.WithField("commonName", commonName).Debug("DummyCert")
+	log.Debugf("ca DummyCert: %v", commonName)
 	template := &x509.Certificate{
 		SerialNumber: big.NewInt(time.Now().UnixNano() / 100000),
 		Subject: pkix.Name{
