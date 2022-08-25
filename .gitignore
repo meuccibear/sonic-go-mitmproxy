@@ -5,5 +5,4 @@
 /.idea
 dist/
 .vscode
-/addon/web/client/node_modules/
 /web/client/node_modules/
