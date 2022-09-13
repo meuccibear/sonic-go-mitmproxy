@@ -34,7 +34,7 @@ func NewProxy(opts *Options) (*Proxy, error) {
 
 	proxy := &Proxy{
 		Opts:    opts,
-		Version: "1.3.1",
+		Version: "SONIC_VERSION",
 		Addons:  make([]Addon, 0),
 	}
 
