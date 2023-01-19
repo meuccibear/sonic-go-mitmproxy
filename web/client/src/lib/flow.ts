@@ -1,6 +1,7 @@
 import type { ConnectionManager, IConnection } from './connection'
 import { IMessage, MessageType } from './message'
 import { arrayBufferToBase64, bufHexView, getSize, isTextBody } from './utils'
+import { FlowFilter } from './filter'
 
 export type Header = Record<string, string[]>
 
@@ -74,8 +75,8 @@ export class Flow {
   private _previewRequestBody: IPreviewBody | null = null
   private _hexviewResponseBody: string | null = null
 
-  private connMgr: ConnectionManager;
-  private conn: IConnection | undefined;
+  private connMgr: ConnectionManager
+  private conn: IConnection | undefined
 
   constructor(msg: IMessage, connMgr: ConnectionManager) {
     this.no = ++Flow.curNo
@@ -265,7 +266,7 @@ export class Flow {
 export class FlowManager {
   private items: Flow[]
   private _map: Map<string, Flow>
-  private filterText: string
+  private flowFilter: FlowFilter | undefined
   private filterTimer: number | null
   private num: number
   private max: number
@@ -273,7 +274,6 @@ export class FlowManager {
   constructor() {
     this.items = []
     this._map = new Map()
-    this.filterText = ''
     this.filterTimer = null
     this.num = 0
 
@@ -281,27 +281,8 @@ export class FlowManager {
   }
 
   showList() {
-    let text = this.filterText
-    if (text) text = text.trim()
-    if (!text) return this.items
-
-    // regexp
-    if (text.startsWith('/') && text.endsWith('/')) {
-      text = text.slice(1, text.length - 1).trim()
-      if (!text) return this.items
-      try {
-        const reg = new RegExp(text)
-        return this.items.filter(item => {
-          return reg.test(item.request.url)
-        })
-      } catch (err) {
-        return this.items
-      }
-    }
-
-    return this.items.filter(item => {
-      return item.request.url.includes(text)
-    })
+    if (!this.flowFilter) return this.items
+    return this.items.filter(item => (this.flowFilter as FlowFilter).match(item))
   }
 
   add(item: Flow) {
@@ -319,19 +300,20 @@ export class FlowManager {
     return this._map.get(id)
   }
 
-  changeFilter(text: string) {
-    this.filterText = text
-  }
-
-  changeFilterLazy(text: string, callback: () => void) {
+  changeFilterLazy(text: string, callback: (err: any) => void) {
     if (this.filterTimer) {
       clearTimeout(this.filterTimer)
       this.filterTimer = null
     }
 
     this.filterTimer = setTimeout(() => {
-      this.filterText = text
-      callback()
+      try {
+        this.flowFilter = new FlowFilter(text)
+        callback(null)
+      } catch (err) {
+        this.flowFilter = undefined
+        callback(err)
+      }
     }, 300) as any
   }
 
