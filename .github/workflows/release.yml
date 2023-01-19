@@ -13,6 +13,11 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+          
+      - name: Yarn CLI
+        uses: CultureHQ/actions-yarn@v1.0.1
+        
+      - run: cd web/client && yarn install && yarn build
 
       - name: 'Get Previous tag'
         id: previoustag
