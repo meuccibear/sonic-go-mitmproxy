@@ -12,18 +12,8 @@
 This repo was fork from [go-mitmproxy](https://github.com/lqqyt2423/go-mitmproxy).
 We will optimize and customize based on this, and we will also provide our pr to the original repo.
 
-### Official Website
-[Sonic Official Website](https://sonic-cloud.gitee.io)
-## Background
-
-#### What is sonic ?
-
-> Sonic is a platform that integrates remote control debugging and automated testing of mobile devices, and strives to create a better use experience for global developers and test engineers.
->
->If you want to participate, welcome to join us! 💪
->
->If you want to support, you can give me a star. ⭐
-
+## Document
+[Sonic Official Website](https://sonic-cloud.cn/sgm/re-sgm.html)
 
 ## Features
 
